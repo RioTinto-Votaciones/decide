@@ -9,6 +9,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
+import zipfile
+
+from django.http import HttpResponse
 
 class Question(models.Model):
     desc = models.TextField()
@@ -164,6 +167,7 @@ class Voting(models.Model):
 
         self.do_postproc()
 
+
     def do_postproc(self):
         tally = self.tally
         options = self.question.options.all()
@@ -185,6 +189,17 @@ class Voting(models.Model):
 
         self.postproc = postp
         self.save()
+
+        archivo = open("tallydeVoting"+str((self.id))+".txt","w")
+        archivo.write("\n Hola Mundo\n")
+        archivo.write(str((opts)))
+        archivo.close()
+
+        zip_file=zipfile.ZipFile("tally.zip", mode="w")
+        zip_file.write("tallydeVoting"+str((self.id))+".txt")
+        zip_file.close()
+
+        return zip_file
 
     def __str__(self):
         return self.name
