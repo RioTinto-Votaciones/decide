@@ -46,6 +46,21 @@ class YesOrNoQuestion(models.Model):
     def __str__(self):
         return self.desc
 
+#Añadida clase Order
+
+class OrderQuestion(models.Model):
+    desc = models.TextField()
+    PREFERENCES = (
+        ('B', '1'),
+        ('M', '2'),
+        ('A', '3'),
+    )
+    preference = models.CharField(max_length=1, choices=PREFERENCES, blank=True)
+
+    def __str__(self):
+        return self.desc
+    
+
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
     number = models.PositiveIntegerField(blank=True, null=True)
