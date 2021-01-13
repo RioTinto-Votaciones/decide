@@ -13,7 +13,7 @@ from census.models import Census
 from mixnet.mixcrypt import ElGamal
 from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
-from voting.models import Voting, Question, QuestionOption
+from voting.models import Voting, Question, QuestionOption, YesOrNoQuestion
 
 
 class VotingTestCase(BaseTestCase):
@@ -46,6 +46,22 @@ class VotingTestCase(BaseTestCase):
         v.auths.add(a)
 
         return v
+
+    def create_yesorno(self):
+        CHOICES = (
+            ('Y', 'Yes'),
+            ('N', 'No'),
+        )
+        yon = YesOrNoQuestion(desc='Yes or No test question', choice=CHOICES)
+        yon.save()
+       
+        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
+                                          defaults={'me': True, 'name': 'test auth'})
+        a.save()
+        v.auths.add(a)
+
+        return yon
+
 
     def create_voters(self, v):
         for i in range(100):
@@ -105,6 +121,10 @@ class VotingTestCase(BaseTestCase):
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
+
+    def test_yesorno(self):
+        yon = self.create_yesorno()
+        self.assertEqual((yon.desc), 'Yes or No test question')
 
     def test_create_voting_from_api(self):
         data = {'name': 'Example'}
