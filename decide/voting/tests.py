@@ -13,7 +13,7 @@ from census.models import Census
 from mixnet.mixcrypt import ElGamal
 from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
-from voting.models import Voting, Question, QuestionOption
+from voting.models import Voting, Question, QuestionOption, YesOrNoQuestion
 
 
 class VotingTestCase(BaseTestCase):
@@ -46,6 +46,13 @@ class VotingTestCase(BaseTestCase):
         v.auths.add(a)
 
         return v
+
+    def create_yesorno(self):
+        yon = YesOrNoQuestion(desc='Test yesorno')
+        yon.save()
+        
+        return yon
+
 
     def create_voters(self, v):
         for i in range(100):
