@@ -40,7 +40,7 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
         voting.auths.add(auth)
 
         options = webdriver.ChromeOptions()
-        # options.headless = True
+        options.headless = True
         self.driver = webdriver.Chrome(options=options)
 
         super().setUp()            
