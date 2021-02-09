@@ -40,7 +40,7 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
         voting.auths.add(auth)
 
         options = webdriver.ChromeOptions()
-        options.headless = True
+        # options.headless = True
         self.driver = webdriver.Chrome(options=options)
 
         super().setUp()            
@@ -91,3 +91,58 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
     def test_create_voting_existing_url(self):
         self.create_voting(url="_votacion_test_ejemplo_already_exists")
         self.assertTrue(len(self.driver.find_elements_by_class_name('errorlist'))==1)
+    
+    def create_orderquestionsuccess(self):
+        self.driver.get(f'{self.live_server_url}/admin')
+        self.driver.set_window_size(1920, 1031)
+        self.driver.find_element(By.ID, "id_username").send_keys("admin-selenium")
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+        self.driver.find_element(By.ID, "container").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".model-orderquestion .addlink").click()
+        self.driver.find_element(By.ID, "id_desc").click()
+        self.driver.find_element(By.ID, "id_desc").click()
+        self.driver.find_element(By.ID, "id_desc").click()
+        self.driver.find_element(By.ID, "id_desc").send_keys("¿Del 1 al 3 cuanto te gusta este partido?")
+        self.driver.find_element(By.NAME, "_save").click()
+        self.driver.find_element(By.CSS_SELECTOR, "html").click()
+        self.driver.find_element(By.CSS_SELECTOR, "html").click() 
+        
+    def test_create_orderquestion_success(self):
+        self.create_orderquestionsuccess()
+        self.assertTrue(len(self.driver.find_elements_by_class_name('success'))==1)
+
+    def test_create_voting_orderquestion(self):
+        self.create_orderquestionsuccess()
+        self.driver.find_element(By.LINK_TEXT, "Home").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".model-voting .addlink").click()
+        time.sleep(3)
+        self.driver.find_element(By.ID, "id_name").send_keys("_Votación_Test_")
+        self.driver.find_element(By.ID, "id_desc").click()
+        self.driver.find_element(By.ID, "id_desc").send_keys("_Votación_Test_Descripción_")
+
+        select = Select(self.driver.find_element_by_id('id_order_question'))
+        select.select_by_visible_text('¿Del 1 al 3 cuanto te gusta este partido?')
+
+        select = Select(self.driver.find_element_by_id('id_auths'))
+        select.select_by_visible_text(str(self.live_server_url))
+
+        self.driver.find_element(By.ID, "id_url").click()
+        self.driver.find_element(By.ID, "id_url").send_keys('test')
+
+        self.driver.find_element(By.NAME, "_save").click()
+        self.assertTrue(len(self.driver.find_elements_by_class_name('success'))==1)
+
+    
+    def test_orderquestionwitherror(self):
+        self.driver.get(f'{self.live_server_url}/admin')
+        self.driver.set_window_size(1920, 1031)
+        self.driver.find_element(By.ID, "id_username").send_keys("admin-selenium")
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+        self.driver.find_element(By.ID, "container").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".model-orderquestion .addlink").click()
+        self.driver.find_element(By.NAME, "_save").click()
+        self.assertTrue(len(self.driver.find_elements_by_class_name('errorlist'))==1) 
