@@ -146,3 +146,41 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".model-orderquestion .addlink").click()
         self.driver.find_element(By.NAME, "_save").click()
         self.assertTrue(len(self.driver.find_elements_by_class_name('errorlist'))==1) 
+
+    
+    def createYesOrNoQuestion(self):
+        self.driver.get(f'{self.live_server_url}/admin')
+        self.driver.set_window_size(1920, 1031)
+        self.driver.find_element(By.ID, "id_username").send_keys("admin-selenium")
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+        self.driver.find_element(By.ID, "container").click()
+        self.driver.find_element(By.LINK_TEXT, "Yes or no questions").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
+        self.driver.find_element(By.ID, "id_desc").send_keys("Prueba yes or no question")
+        self.driver.find_element(By.NAME, "_save").click()
+
+    def test_votingwithyesornoquestion(self):
+        self.createYesOrNoQuestion()
+        self.driver.find_element(By.LINK_TEXT, "Home").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".model-voting .addlink").click()
+        time.sleep(3)
+        self.driver.find_element(By.ID, "id_name").send_keys("_Votación_Test_")
+        self.driver.find_element(By.ID, "id_desc").click()
+        self.driver.find_element(By.ID, "id_desc").send_keys("_Votación_Test_Descripción_")
+        
+        dropdown = self.driver.find_element(By.ID, "id_yes_or_no_question")
+        dropdown.find_element(By.XPATH, "//option[. = 'Prueba yes or no question']").click()
+        self.driver.find_element(By.ID, "id_yes_or_no_question").click()
+
+        
+        
+        select = Select(self.driver.find_element_by_id('id_auths'))
+        select.select_by_visible_text(str(self.live_server_url))
+
+        self.driver.find_element(By.ID, "id_url").click()
+        self.driver.find_element(By.ID, "id_url").send_keys('test')
+
+        self.driver.find_element(By.NAME, "_save").click()
+        self.assertTrue(len(self.driver.find_elements_by_class_name('success'))==1)
