@@ -1,21 +1,51 @@
-dist: xenial
-
-services:
-  - postgresql
-addons:
-  postgresql: "9.4"
-before_script:
-  - psql -U postgres -c "create user decide password 'decide'"
-  - psql -U postgres -c "create database test_decide owner decide"
-  - psql -U postgres -c "ALTER USER decide CREATEDB"
 language: python
 python:
-  - "3.6"
+- '3.6'
+branches:
+  only:
+  - master
+  - develop
+services:
+- postgresql
+env:
+- DJANGO=2.0 DB=postgres
+global:
+- PGPORT=5432
+before_install:
+- sudo apt update
+- sudo apt install chromium-chromedriver
+- cd decide
 install:
-  - pip install -r requirements.txt
-  - pip install codacy-coverage
+- pip install selenium
+- pip install -r ../requirements.txt
+before_script:
+- cp local_settings.travis.py local_settings.py
+- cd decide
+- cp -f travis_settings.py settings.py
+- cd ..
+- psql -U postgres -c "create user decide password 'decide'"
+- psql -U postgres -c "create database test_decide owner decide"
+- psql -U postgres -c "ALTER USER decide CREATEDB"
+- python manage.py makemigrations
+- python manage.py migrate
 script:
-  - cd decide
-  - coverage run --branch --source=. ./manage.py test --keepdb --with-xunit
-  - coverage xml
-  - python-codacy-coverage -r coverage.xml
+- python manage.py test voting
+addons:
+  postgresql: '9.6'
+  chrome: stable
+deploy:
+  - provider: heroku
+    app: decide-egc-tinto-votaciones
+    strategy: git
+    on:
+      branch: master
+    api_key:
+      secure: cTpzJMYgjaovm8ZWcggU+nmHJh7g2J/lSxsaKwsMATeV4WXVBZSBMig8oyYJ7kcxceghoWbryd6tCVRfxROt/M0fEg01MgizZz/79fnJO7+6Ucjgp+cso7BdyY20soUURG8+5HJKLzax2Pb9PhJtPRCTw9Sov/2fTA0UpLqgealDR1INriOhqNtZ8H6/USSXKB2w6M/cwF+RCzZL6+tcT+sWMfTY8dPEE0ln2goMyFvsN1SvKBZJoQJQXN2rfROXQwgwf+Om/yVWEMVv5fOhTlhEmNjeFqDFvKnk9fNvoVKIwiSawidnubV7mCj4RbrNTSMDvZWDcR/QZeV+FNPkrqSu86RO/TWhOc4uAlU1LqwLSNxSmKwdeQL212PQaJzALbQ9G8J4GDFLnTdRRzlnuv7hBkZEeVe/sTMEknhggk8XOJHcvzqdYsAX2cb7yHG+uhNSokPLBqp4HcOEa6bPpdQHX7xQWC1kSRSbPYdw7xg5GrZRLF9b4+xiPwHUKAnZVxNbE9uimJR2N24YuiFKYLZ4rqqUcL5KoZyKMEonsMAbMsvXaKywIOnoYa+iZ5vXqOaoncIfai3YhC7GeYiN0+7XfAics+GkyHVgOlhP/znS/0QVLMHtpA6mgC3O/Mp/uo9KfgrGkN8QA8uq/68vZZKYoCVpaAUYdCkcrmsOa5E=
+  
+  - provider: heroku
+    app: decide-egc-tinto-votaciones-dv
+    strategy: git
+    on:
+      branch: develop
+    api_key:
+      secure: cTpzJMYgjaovm8ZWcggU+nmHJh7g2J/lSxsaKwsMATeV4WXVBZSBMig8oyYJ7kcxceghoWbryd6tCVRfxROt/M0fEg01MgizZz/79fnJO7+6Ucjgp+cso7BdyY20soUURG8+5HJKLzax2Pb9PhJtPRCTw9Sov/2fTA0UpLqgealDR1INriOhqNtZ8H6/USSXKB2w6M/cwF+RCzZL6+tcT+sWMfTY8dPEE0ln2goMyFvsN1SvKBZJoQJQXN2rfROXQwgwf+Om/yVWEMVv5fOhTlhEmNjeFqDFvKnk9fNvoVKIwiSawidnubV7mCj4RbrNTSMDvZWDcR/QZeV+FNPkrqSu86RO/TWhOc4uAlU1LqwLSNxSmKwdeQL212PQaJzALbQ9G8J4GDFLnTdRRzlnuv7hBkZEeVe/sTMEknhggk8XOJHcvzqdYsAX2cb7yHG+uhNSokPLBqp4HcOEa6bPpdQHX7xQWC1kSRSbPYdw7xg5GrZRLF9b4+xiPwHUKAnZVxNbE9uimJR2N24YuiFKYLZ4rqqUcL5KoZyKMEonsMAbMsvXaKywIOnoYa+iZ5vXqOaoncIfai3YhC7GeYiN0+7XfAics+GkyHVgOlhP/znS/0QVLMHtpA6mgC3O/Mp/uo9KfgrGkN8QA8uq/68vZZKYoCVpaAUYdCkcrmsOa5E=

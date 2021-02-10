@@ -80,9 +80,13 @@ class QuestionOption(models.Model):
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
-    question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
-    political_party = models.ForeignKey(PoliticalParty, related_name='voting', on_delete=models.CASCADE, null=True)
+    question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE, null=True, blank=True)
+    political_party = models.ForeignKey(PoliticalParty, related_name='voting', on_delete=models.CASCADE, null=True, blank=True)
     # ,blank=True
+    
+    order_question = models.ForeignKey(OrderQuestion, related_name='voting', on_delete=models.CASCADE, null= True, blank=True)
+
+    yes_or_no_question = models.ForeignKey(YesOrNoQuestion, related_name='voting', on_delete=models.CASCADE, null=True, blank=True)
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
@@ -100,7 +104,9 @@ class Voting(models.Model):
         
         url = urllib.parse.quote_plus(self.url.encode('utf-8'))
         
-        if Voting.objects.filter(url=url).exists():
+        print(Voting.objects.filter(url=url))
+
+        if Voting.objects.filter(url=url).exists() and Voting.objects.filter(url=url)[0] != self:
             raise ValidationError({'url': "The url already exists."})
 
     def save(self, *args, **kwargs):
