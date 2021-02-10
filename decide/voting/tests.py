@@ -351,30 +351,28 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 401)
 
 
-    def test_create_orderquestion_without_desc(self):
-        data = {
-        
-        }
-        response = self.client.post('/orderquestion/', data, format='json')
-        self.assertEqual(response.status_code, 401)
-
-    def test_create_orderquestion_with_desc(self):
-         data = {
-            
-            'desc': 'Description example',
+    def test_create_voting_orderquestion(self):
+        orderquestion = OrderQuestion(desc="Descripción de ejemplo")
+        orderquestion.save()
     
-        }
-        response = self.client.post(???)
-        self.assertEqual(response.status_code, 200)
+        v = Voting(name='test voting', url="_test_voting_orderquestion", order_question=orderquestion)
+    
+        v.save()
 
-    def test_create_voting_whit_orderquestion(self):   
-         data = {
-            'name': 'Example test',
-            'desc': 'Description example',
-            'orderquestion': '¿Cuanto te gusta este partido?'
-            'url': '_test_voting',
-                
-        }
-        
+        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
+                                          defaults={'me': True, 'name': 'test auth'})
+        a.save()
+        v.auths.add(a)
 
+        self.assertTrue(Voting.objects.get(url="_test_voting_orderquestion").order_question==orderquestion)
+
+    def test_create_orderquestion(self):
+        orderquestion = OrderQuestion(desc="Descripción de ejemplo")
+        orderquestion.save()
+
+        self.assertTrue(OrderQuestion.objects.filter(desc="Descripción de ejemplo").exists())
+    
+    
+       
+    
 
