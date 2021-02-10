@@ -161,6 +161,22 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.ID, "id_desc").send_keys("Prueba yes or no question")
         self.driver.find_element(By.NAME, "_save").click()
 
+    def test_create_yesornoquestion_success(self):
+        self.createYesOrNoQuestion()
+        self.assertTrue(len(self.driver.find_elements_by_class_name('success'))==1)
+
+    def test_yesornoquestionwitherror(self):
+        self.driver.get(f'{self.live_server_url}/admin')
+        self.driver.set_window_size(1920, 1031)
+        self.driver.find_element(By.ID, "id_username").send_keys("admin-selenium")
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+        self.driver.find_element(By.ID, "container").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".model-yesornoquestion .addlink").click()
+        self.driver.find_element(By.NAME, "_save").click()
+        self.assertTrue(len(self.driver.find_elements_by_class_name('errorlist'))==1)
+
     def test_votingwithyesornoquestion(self):
         self.createYesOrNoQuestion()
         self.driver.find_element(By.LINK_TEXT, "Home").click()
@@ -174,8 +190,6 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
         dropdown.find_element(By.XPATH, "//option[. = 'Prueba yes or no question']").click()
         self.driver.find_element(By.ID, "id_yes_or_no_question").click()
 
-        
-        
         select = Select(self.driver.find_element_by_id('id_auths'))
         select.select_by_visible_text(str(self.live_server_url))
 
