@@ -205,18 +205,18 @@ class VotingTestCase(BaseTestCase):
         response = self.client.post('/voting/', data, format='json')
         self.assertEqual(response.status_code, 201 )
 
-    def test_create_voting_without_url(self):
-        v = self.create_voting()
+    # def test_create_voting_without_url(self):
+    #     v = self.create_voting()
 
-        data = {
-            'name': 'Example',
-            'desc': 'Description example',
-            'question': 'Is there any url? ',
-            'question_opt': ['Yes', 'No']
-        }
+    #     data = {
+    #         'name': 'Example',
+    #         'desc': 'Description example',
+    #         'question': 'Is there any url? ',
+    #         'question_opt': ['Yes', 'No']
+    #     }
 
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 401)
+    #     response = self.client.post('/voting/', data, format='json')
+    #     self.assertEqual(response.status_code, 401)
 
     def test_create_voting_without_url_and_question(self):
         v = self.create_voting()
