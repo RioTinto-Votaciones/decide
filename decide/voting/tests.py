@@ -424,14 +424,6 @@ class VotingTestCase(BaseTestCase):
 
 
 
-       
-
-
-
-
-      
-
-
     def test_create_voting_url_whitespaces(self):
         v = self.create_voting(url="_test voting")
         self.assertTrue(Voting.objects.filter(url="_test+voting").exists())
@@ -486,5 +478,3 @@ class VotingTestCase(BaseTestCase):
     
        
     
-
-
