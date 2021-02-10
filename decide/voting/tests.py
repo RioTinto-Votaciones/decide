@@ -340,6 +340,98 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
 
+        
+        
+        
+# tests political party
+
+    def test_create_politicalParty(self):
+        political_party = PoliticalParty(name="Nombre de partido", leader="Fulanito",
+            description="Descripcion del partido", acronym="NdP")
+
+        political_party.save()
+        self.assertTrue(PoliticalParty.objects.filter(leader="Fulanito").exists())
+
+
+    
+    def test_create_politicalParty_error(self):
+
+        political_party = PoliticalParty(name="nombre de ejemplo", acronym="NdE")
+
+        try:
+            political_party.save()
+
+        except:
+
+            self.assertTrue(True)
+
+
+    
+    def test_create_yes_or_no(self):
+
+        yes_or_no = YesOrNoQuestion(desc="Descripcion de pregunta si o no")
+        yes_or_no.save()
+        self.assertTrue(YesOrNoQuestion.objects.filter(desc="Descripcion de pregunta si o no").exists())
+
+        
+
+
+
+    def test_create_yes_or_no_error(self):
+
+        try: 
+            yes_or_no = YesOrNoQuestion()
+            yes_or_no.save()
+        except:
+            self.assertTrue(True)
+
+
+
+
+    def test_update_political_party(self):
+
+        political_party = PoliticalParty(name="Nombre de partido", leader="Fulanito",
+        description="Descripcion del partido", acronym="NdP")
+
+        political_party.save()
+
+        political_party= PoliticalParty.objects.get(name="Nombre de partido")
+
+        political_party.name = "Nueva Cualicion"
+        political_party.save()
+
+
+        self.assertTrue(PoliticalParty.objects.filter(name="Nueva Cualicion").exists())
+
+
+
+    def test_update_political_party_error(self):
+
+        try:
+            political_party = PoliticalParty(name="Nombre de partido", leader="Fulanito",
+            description="Descripcion del partido", acronym="NdP")
+
+            political_party.save()
+
+            political_party= PoliticalParty.objects.get(name="Nombre de partido")
+
+            political_party.name = ""
+            political_party.save()
+
+        except:
+
+            self.assertTrue(True)
+
+
+
+       
+
+
+
+
+      
+
+
     def test_create_voting_url_whitespaces(self):
         v = self.create_voting(url="_test voting")
         self.assertTrue(Voting.objects.filter(url="_test+voting").exists())
@@ -394,4 +486,5 @@ class VotingTestCase(BaseTestCase):
     
        
     
+
 
