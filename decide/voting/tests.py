@@ -63,6 +63,14 @@ class VotingTestCase(BaseTestCase):
             c = Census(voter_id=u.id, voting_id=v.id)
             c.save()
 
+    def create_twentyfivevoters(self, v):
+        for i in range(25):
+            u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
+            u.is_active = True
+            u.save()
+            c = Census(voter_id=u.id, voting_id=v.id)
+            c.save()
+
     def get_or_create_user(self, pk):
         user, _ = User.objects.get_or_create(pk=pk)
         user.username = 'user{}'.format(pk)
@@ -94,6 +102,29 @@ class VotingTestCase(BaseTestCase):
     def test_complete_voting_fiftyvoters(self):
         v = self.create_voting()
         self.create_fiftyvoters(v)
+
+        v.create_pubkey()
+        v.start_date = timezone.now()
+        v.save()
+
+        clear = self.store_votes(v)
+
+        self.login()
+        v.tally_votes(self.token)
+
+        tally = v.tally
+        tally.sort()
+        tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
+
+        for q in v.question.options.all():
+            self.assertEqual(tally.get(q.number, 0), clear.get(q.number, 0))
+
+        for q in v.postproc:
+            self.assertEqual(tally.get(q["number"], 0), q["votes"])
+
+    def test_complete_voting_twentyfivevoters(self):
+        v = self.create_voting()
+        self.create_twentyfivevoters(v)
 
         v.create_pubkey()
         v.start_date = timezone.now()
@@ -315,3 +346,4 @@ class VotingTestCase(BaseTestCase):
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
+
