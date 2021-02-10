@@ -13,7 +13,7 @@ from census.models import Census
 from mixnet.mixcrypt import ElGamal
 from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
-from voting.models import Voting, Question, QuestionOption
+from voting.models import Voting, Question, QuestionOption, OrderQuestion
 
 
 class VotingTestCase(BaseTestCase):
@@ -349,3 +349,14 @@ class VotingTestCase(BaseTestCase):
 
         response = self.client.post('/voting/', data, format='json')
         self.assertEqual(response.status_code, 401)
+
+
+    def test_create_orderquestion_without_desc(self):
+        data = {
+        
+        }
+        response = self.client.post('/voting/', data, format='json')
+        self.assertEqual(response.status_code, 401)
+        
+
+
