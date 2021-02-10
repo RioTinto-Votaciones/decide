@@ -357,6 +357,15 @@ class VotingTestCase(BaseTestCase):
         }
         response = self.client.post('/voting/', data, format='json')
         self.assertEqual(response.status_code, 401)
+
+    def test_create_orderquestion_with_desc(self):
+         data = {
+            
+            'desc': 'Description example',
+    
+        }
+        self.assertEqual(response.status_code, 200)
+        
         
 
 
