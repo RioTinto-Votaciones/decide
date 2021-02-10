@@ -355,7 +355,7 @@ class VotingTestCase(BaseTestCase):
         data = {
         
         }
-        response = self.client.post('/voting/', data, format='json')
+        response = self.client.post('/orderquestion/', data, format='json')
         self.assertEqual(response.status_code, 401)
 
     def test_create_orderquestion_with_desc(self):
@@ -364,8 +364,17 @@ class VotingTestCase(BaseTestCase):
             'desc': 'Description example',
     
         }
+        response = self.client.post(???)
         self.assertEqual(response.status_code, 200)
-        
+
+    def test_create_voting_whit_orderquestion(self):   
+         data = {
+            'name': 'Example test',
+            'desc': 'Description example',
+            'orderquestion': '¿Cuanto te gusta este partido?'
+            'url': '_test_voting',
+                
+        }
         
 
 
