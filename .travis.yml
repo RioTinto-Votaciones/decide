@@ -29,7 +29,7 @@ before_script:
 - python manage.py makemigrations
 - python manage.py migrate
 script:
-- python manage.py test voting
+- coverage run --branch --source=. ./manage.py test voting --keepdb
 addons:
   postgresql: '9.6'
   chrome: stable
