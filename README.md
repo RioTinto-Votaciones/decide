@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/RioTinto-Votaciones/decide.svg?branch=develop)](https://travis-ci.com/RioTinto-Votaciones/decide)
+[![Build Status](https://travis-ci.com/RioTinto-Votaciones/decide.svg?branch=develop)](https://travis-ci.com/RioTinto-Votaciones/decide) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/5aa4cf8205dc43569ecd2d1338e498a6)](https://www.codacy.com/gh/RioTinto-Votaciones/decide/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RioTinto-Votaciones/decide&amp;utm_campaign=Badge_Grade) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/5aa4cf8205dc43569ecd2d1338e498a6)](https://www.codacy.com/gh/RioTinto-Votaciones/decide/dashboard?utm_source=github.com&utm_medium=referral&utm_content=RioTinto-Votaciones/decide&utm_campaign=Badge_Coverage)
 
 Plataforma voto electrónico educativa pro
 =====================================
