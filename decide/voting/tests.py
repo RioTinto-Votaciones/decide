@@ -69,6 +69,7 @@ class VotingTestCase(BaseTestCase):
             c.save()
 
     def create_twentyfivevoters(self, v):
+        #Creacion de 25 voters
         for i in range(25):
             u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
             u.is_active = True
