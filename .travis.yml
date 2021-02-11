@@ -17,6 +17,7 @@ before_install:
 - cd decide
 install:
 - pip install selenium
+- pip install codacy-coverage
 - pip install -r ../requirements.txt
 before_script:
 - cp local_settings.travis.py local_settings.py
@@ -30,6 +31,8 @@ before_script:
 - python manage.py migrate
 script:
 - coverage run --branch --source=. ./manage.py test voting --keepdb
+- coverage xml
+- python-codacy-coverage -r coverage.xml
 addons:
   postgresql: '9.6'
   chrome: stable
