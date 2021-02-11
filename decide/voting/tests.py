@@ -13,7 +13,7 @@ from census.models import Census
 from mixnet.mixcrypt import ElGamal
 from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
-from voting.models import Voting, Question, QuestionOption
+from voting.models import Voting, Question, QuestionOption, OrderQuestion, PoliticalParty, YesOrNoQuestion
 
 
 class VotingTestCase(BaseTestCase):
@@ -68,6 +68,14 @@ class VotingTestCase(BaseTestCase):
             c = Census(voter_id=u.id, voting_id=v.id)
             c.save()
 
+    def create_twentyfivevoters(self, v):
+        for i in range(25):
+            u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
+            u.is_active = True
+            u.save()
+            c = Census(voter_id=u.id, voting_id=v.id)
+            c.save()        
+            
     def get_or_create_user(self, pk):
         user, _ = User.objects.get_or_create(pk=pk)
         user.username = 'user{}'.format(pk)
@@ -119,6 +127,29 @@ class VotingTestCase(BaseTestCase):
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
+    def test_complete_voting_twentyfivevoters(self):
+        v = self.create_voting()
+        self.create_twentyfivevoters(v)
+
+        v.create_pubkey()
+        v.start_date = timezone.now()
+        v.save()
+
+        clear = self.store_votes(v)
+
+        self.login()
+        v.tally_votes(self.token)
+
+        tally = v.tally
+        tally.sort()
+        tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
+
+        for q in v.question.options.all():
+            self.assertEqual(tally.get(q.number, 0), clear.get(q.number, 0))
+
+        for q in v.postproc:
+            self.assertEqual(tally.get(q["number"], 0), q["votes"])        
+            
     def test_complete_voting_with_voters(self):
         v = self.create_voting()
         self.create_voters(v)
@@ -205,18 +236,6 @@ class VotingTestCase(BaseTestCase):
         response = self.client.post('/voting/', data, format='json')
         self.assertEqual(response.status_code, 201 )
 
-    def test_create_voting_without_url(self):
-        v = self.create_voting()
-
-        data = {
-            'name': 'Example',
-            'desc': 'Description example',
-            'question': 'Is there any url? ',
-            'question_opt': ['Yes', 'No']
-        }
-
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 401)
 
     def test_create_voting_without_url_and_question(self):
         v = self.create_voting()
@@ -321,6 +340,90 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
 
+        
+        
+        
+# tests political party
+
+    def test_create_politicalParty(self):
+        political_party = PoliticalParty(name="Nombre de partido", leader="Fulanito",
+            description="Descripcion del partido", acronym="NdP")
+
+        political_party.save()
+        self.assertTrue(PoliticalParty.objects.filter(leader="Fulanito").exists())
+
+
+    
+    def test_create_politicalParty_error(self):
+
+        political_party = PoliticalParty(name="nombre de ejemplo", acronym="NdE")
+
+        try:
+            political_party.save()
+
+        except:
+
+            self.assertTrue(True)
+
+
+    
+    def test_create_yes_or_no(self):
+
+        yes_or_no = YesOrNoQuestion(desc="Descripcion de pregunta si o no")
+        yes_or_no.save()
+        self.assertTrue(YesOrNoQuestion.objects.filter(desc="Descripcion de pregunta si o no").exists())
+
+        
+
+
+
+    def test_create_yes_or_no_error(self):
+
+        try: 
+            yes_or_no = YesOrNoQuestion()
+            yes_or_no.save()
+        except:
+            self.assertTrue(True)
+
+
+
+
+    def test_update_political_party(self):
+
+        political_party = PoliticalParty(name="Nombre de partido", leader="Fulanito",
+        description="Descripcion del partido", acronym="NdP")
+
+        political_party.save()
+
+        political_party= PoliticalParty.objects.get(name="Nombre de partido")
+
+        political_party.name = "Nueva Cualicion"
+        political_party.save()
+
+
+        self.assertTrue(PoliticalParty.objects.filter(name="Nueva Cualicion").exists())
+
+
+
+    def test_update_political_party_error(self):
+
+        try:
+            political_party = PoliticalParty(name="Nombre de partido", leader="Fulanito",
+            description="Descripcion del partido", acronym="NdP")
+
+            political_party.save()
+
+            political_party= PoliticalParty.objects.get(name="Nombre de partido")
+
+            political_party.name = ""
+            political_party.save()
+
+        except:
+
+            self.assertTrue(True)
+
+
+
     def test_create_voting_url_whitespaces(self):
         v = self.create_voting(url="_test voting")
         self.assertTrue(Voting.objects.filter(url="_test+voting").exists())
@@ -338,3 +441,40 @@ class VotingTestCase(BaseTestCase):
 
         response = self.client.post('/voting/', data, format='json')
         self.assertEqual(response.status_code, 401)
+    
+    def test_create_voting_without_url(self):
+        data = {
+            'name': 'Example No URL',
+            'desc': 'Description example',
+            'question': 'Is this a question? ',
+            'question_opt': ['Yes', 'No']
+        }
+
+        response = self.client.post('/voting/', data, format='json')
+        self.assertEqual(response.status_code, 401)
+
+
+    def test_create_voting_orderquestion(self):
+        orderquestion = OrderQuestion(desc="Descripción de ejemplo")
+        orderquestion.save()
+    
+        v = Voting(name='test voting', url="_test_voting_orderquestion", order_question=orderquestion)
+    
+        v.save()
+
+        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
+                                          defaults={'me': True, 'name': 'test auth'})
+        a.save()
+        v.auths.add(a)
+
+        self.assertTrue(Voting.objects.get(url="_test_voting_orderquestion").order_question==orderquestion)
+
+    def test_create_orderquestion(self):
+        orderquestion = OrderQuestion(desc="Descripción de ejemplo")
+        orderquestion.save()
+
+        self.assertTrue(OrderQuestion.objects.filter(desc="Descripción de ejemplo").exists())
+    
+    
+       
+    

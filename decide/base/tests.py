@@ -20,6 +20,10 @@ class BaseTestCase(APITestCase):
         user_admin.set_password('qwerty')
         user_admin.save()
 
+        user_admin = User(username='admin-selenium', is_staff=True, is_superuser=True, is_active=True)
+        user_admin.set_password('qwerty')
+        user_admin.save()
+
     def tearDown(self):
         self.client = None
         self.token = None
