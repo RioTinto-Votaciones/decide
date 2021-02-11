@@ -53,6 +53,7 @@ class VotingTestCase(BaseTestCase):
         return v
 
     def create_voters(self, v):
+        #Creacion de 100 voters
         for i in range(100):
             u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
             u.is_active = True
